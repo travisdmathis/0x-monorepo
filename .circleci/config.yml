@@ -78,6 +78,10 @@ jobs:
           paths:
             - ~/repo/packages/assert/coverage/lcov.info
       - save_cache:
+          key: coverage-contract-wrappers-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/repo/packages/contract-wrappers/coverage/lcov.info
+      - save_cache:
           key: coverage-connect-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/repo/packages/connect/coverage/lcov.info
@@ -148,7 +152,7 @@ jobs:
             - coverage-sol-compiler-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
           keys:
-            - coverage-0xjs-{{ .Environment.CIRCLE_SHA1 }}
+            - coverage-contract-wrappers-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
           keys:
             - coverage-metacoin-{{ .Environment.CIRCLE_SHA1 }}
