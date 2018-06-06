@@ -26,6 +26,7 @@ import {
     StatementCoverage,
     StatementDescription,
     StatementMap,
+    Subtrace,
     TraceInfo,
     TraceInfoExistingContract,
     TraceInfoNewContract,
@@ -38,16 +39,15 @@ export class CoverageManager {
     private _artifactAdapter: AbstractArtifactAdapter;
     private _logger: Logger;
     private _traceInfos: TraceInfo[] = [];
-    private _getContractCodeAsync: (address: string) => Promise<string>;
-    private static _getSingleFileCoverageForTrace(
+    protected static _getSingleFileCoverageForSubtrace(
         contractData: ContractData,
-        coveredPcs: number[],
+        subtrace: Subtrace,
         pcToSourceRange: { [programCounter: number]: SourceRange },
         fileIndex: number,
     ): Coverage {
         const absoluteFileName = contractData.sources[fileIndex];
         const coverageEntriesDescription = collectCoverageEntries(contractData.sourceCodes[fileIndex]);
-        let sourceRanges = _.map(coveredPcs, coveredPc => pcToSourceRange[coveredPc]);
+        let sourceRanges = _.map(subtrace, structLog => pcToSourceRange[structLog.pc]);
         sourceRanges = _.compact(sourceRanges); // Some PC's don't map to a source range and we just ignore them.
         // By default lodash does a shallow object comparasion. We JSON.stringify them and compare as strings.
         sourceRanges = _.uniqBy(sourceRanges, s => JSON.stringify(s)); // We don't care if one PC was covered multiple times within a single transaction
@@ -121,7 +121,10 @@ export class CoverageManager {
             .replace(/.{86}$/, '')
             // Libraries contain their own address at the beginning of the code and it's impossible to know it in advance
             .replace(/^0x730000000000000000000000000000000000000000/, '0x73........................................');
-        return bytecodeRegex;
+        // HACK: Node regexes can't be longer that 32767 characters. Contracts bytecode can. We jsut truncate the regexes. It's safe in practice.
+        const MAX_REGEX_LENGTH = 32767;
+        const truncatedBytecodeRegex = bytecodeRegex.slice(0, MAX_REGEX_LENGTH);
+        return truncatedBytecodeRegex;
     }
     private static _getContractDataIfExists(contractsData: ContractData[], bytecode: string): ContractData | undefined {
         if (!bytecode.startsWith('0x')) {
@@ -138,12 +141,7 @@ export class CoverageManager {
         });
         return contractData;
     }
-    constructor(
-        artifactAdapter: AbstractArtifactAdapter,
-        getContractCodeAsync: (address: string) => Promise<string>,
-        isVerbose: boolean,
-    ) {
-        this._getContractCodeAsync = getContractCodeAsync;
+    constructor(artifactAdapter: AbstractArtifactAdapter, isVerbose: boolean) {
         this._artifactAdapter = artifactAdapter;
         this._logger = getLogger('sol-cov');
         this._logger.setLevel(isVerbose ? levels.TRACE : levels.ERROR);
@@ -157,7 +155,7 @@ export class CoverageManager {
         await mkdirpAsync('coverage');
         fs.writeFileSync('coverage/coverage.json', stringifiedCoverage);
     }
-    private async _computeCoverageAsync(): Promise<Coverage> {
+    protected async _computeCoverageAsync(): Promise<Coverage> {
         const contractsData = await this._artifactAdapter.collectContractsDataAsync();
         const collector = new Collector();
         for (const traceInfo of this._traceInfos) {
@@ -178,9 +176,9 @@ export class CoverageManager {
                     contractData.sources,
                 );
                 for (let fileIndex = 0; fileIndex < contractData.sources.length; fileIndex++) {
-                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForTrace(
+                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForSubtrace(
                         contractData,
-                        traceInfo.coveredPcs,
+                        traceInfo.subtrace,
                         pcToSourceRange,
                         fileIndex,
                     );
@@ -203,9 +201,9 @@ export class CoverageManager {
                     contractData.sources,
                 );
                 for (let fileIndex = 0; fileIndex < contractData.sources.length; fileIndex++) {
-                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForTrace(
+                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForSubtrace(
                         contractData,
-                        traceInfo.coveredPcs,
+                        traceInfo.subtrace,
                         pcToSourceRange,
                         fileIndex,
                     );

@@ -1,3 +1,4 @@
+import { ContractArtifact } from '@0xproject/sol-compiler';
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as _ from 'lodash';
@@ -29,7 +30,10 @@ export class SolCompilerArtifactAdapter extends AbstractArtifactAdapter {
         const artifactFileNames = glob.sync(artifactsGlob, { absolute: true });
         const contractsData: ContractData[] = [];
         for (const artifactFileName of artifactFileNames) {
-            const artifact = JSON.parse(fs.readFileSync(artifactFileName).toString());
+            const artifact: ContractArtifact = JSON.parse(fs.readFileSync(artifactFileName).toString());
+            if (_.isUndefined(artifact.compilerOutput.evm)) {
+                continue;
+            }
             let sources = _.keys(artifact.sources);
             sources = _.map(sources, relativeFilePath => path.resolve(this._sourcesPath, relativeFilePath));
             const contractName = artifact.contractName;

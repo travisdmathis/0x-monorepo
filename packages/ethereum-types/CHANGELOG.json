@@ -1,5 +1,13 @@
 [
     {
+        "changes": [
+            {
+                "note": "Add `TraceParams` interface for `debug_traceTransaction` parameters",
+                "pr": 667
+            }
+        ]
+    },
+    {
         "version": "0.0.1",
         "changes": [
             {
