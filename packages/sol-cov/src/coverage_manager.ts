@@ -26,6 +26,7 @@ import {
     StatementCoverage,
     StatementDescription,
     StatementMap,
+    Subtrace,
     TraceInfo,
     TraceInfoExistingContract,
     TraceInfoNewContract,
@@ -38,15 +39,15 @@ export class CoverageManager {
     private _artifactAdapter: AbstractArtifactAdapter;
     private _logger: Logger;
     private _traceInfos: TraceInfo[] = [];
-    private static _getSingleFileCoverageForTrace(
+    private static _getSingleFileCoverageForSubtrace(
         contractData: ContractData,
-        coveredPcs: number[],
+        subtrace: Subtrace,
         pcToSourceRange: { [programCounter: number]: SourceRange },
         fileIndex: number,
     ): Coverage {
         const absoluteFileName = contractData.sources[fileIndex];
         const coverageEntriesDescription = collectCoverageEntries(contractData.sourceCodes[fileIndex]);
-        let sourceRanges = _.map(coveredPcs, coveredPc => pcToSourceRange[coveredPc]);
+        let sourceRanges = _.map(subtrace, structLog => pcToSourceRange[structLog.pc]);
         sourceRanges = _.compact(sourceRanges); // Some PC's don't map to a source range and we just ignore them.
         // By default lodash does a shallow object comparasion. We JSON.stringify them and compare as strings.
         sourceRanges = _.uniqBy(sourceRanges, s => JSON.stringify(s)); // We don't care if one PC was covered multiple times within a single transaction
@@ -175,9 +176,9 @@ export class CoverageManager {
                     contractData.sources,
                 );
                 for (let fileIndex = 0; fileIndex < contractData.sources.length; fileIndex++) {
-                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForTrace(
+                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForSubtrace(
                         contractData,
-                        traceInfo.coveredPcs,
+                        traceInfo.subtrace,
                         pcToSourceRange,
                         fileIndex,
                     );
@@ -200,9 +201,9 @@ export class CoverageManager {
                     contractData.sources,
                 );
                 for (let fileIndex = 0; fileIndex < contractData.sources.length; fileIndex++) {
-                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForTrace(
+                    const singleFileCoverageForTrace = CoverageManager._getSingleFileCoverageForSubtrace(
                         contractData,
-                        traceInfo.coveredPcs,
+                        traceInfo.subtrace,
                         pcToSourceRange,
                         fileIndex,
                     );

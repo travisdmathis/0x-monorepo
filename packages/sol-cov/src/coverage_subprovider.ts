@@ -136,9 +136,8 @@ export class CoverageSubprovider extends Subprovider {
                 let traceInfo: TraceInfoNewContract | TraceInfoExistingContract;
                 if (subcallAddress === 'NEW_CONTRACT') {
                     const traceForThatSubcall = tracesByContractAddress[subcallAddress];
-                    const coveredPcs = _.map(traceForThatSubcall, log => log.pc);
                     traceInfo = {
-                        coveredPcs,
+                        subtrace: traceForThatSubcall,
                         txHash,
                         address: constants.NEW_CONTRACT,
                         bytecode: data as string,
@@ -146,9 +145,8 @@ export class CoverageSubprovider extends Subprovider {
                 } else {
                     const runtimeBytecode = await this._web3Wrapper.getContractCodeAsync(subcallAddress);
                     const traceForThatSubcall = tracesByContractAddress[subcallAddress];
-                    const coveredPcs = _.map(traceForThatSubcall, log => log.pc);
                     traceInfo = {
-                        coveredPcs,
+                        subtrace: traceForThatSubcall,
                         txHash,
                         address: subcallAddress,
                         runtimeBytecode,
@@ -160,9 +158,8 @@ export class CoverageSubprovider extends Subprovider {
             for (const subcallAddress of subcallAddresses) {
                 const runtimeBytecode = await this._web3Wrapper.getContractCodeAsync(subcallAddress);
                 const traceForThatSubcall = tracesByContractAddress[subcallAddress];
-                const coveredPcs = _.map(traceForThatSubcall, log => log.pc);
                 const traceInfo: TraceInfoExistingContract = {
-                    coveredPcs,
+                    subtrace: traceForThatSubcall,
                     txHash,
                     address: subcallAddress,
                     runtimeBytecode,

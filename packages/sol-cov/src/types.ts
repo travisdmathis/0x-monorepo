@@ -1,3 +1,5 @@
+import { StructLog } from 'ethereum-types';
+
 export interface LineColumn {
     line: number;
     column: number;
@@ -82,8 +84,11 @@ export interface ContractData {
     sources: string[];
 }
 
+// Part of the trace executed within the same context
+export type Subtrace = StructLog[];
+
 export interface TraceInfoBase {
-    coveredPcs: number[];
+    subtrace: Subtrace;
     txHash: string;
 }
 
