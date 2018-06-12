@@ -55,7 +55,11 @@ jobs:
             - repo-{{ .Environment.CIRCLE_SHA1 }}
       # HACK(albrow): we need to sleep 15 seconds to ensure the devnet is
       # initialized
-      - run: sleep 15 && TEST_PROVIDER=geth yarn wsrun test contracts
+      - run: sleep 15 && TEST_PROVIDER=geth yarn wsrun test:circleci contracts
+      - save_cache:
+          key: coverage-sol-compiler-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/repo/packages/contracts/coverage/lcov.info
   test-rest:
     docker:
       - image: circleci/node:9
@@ -109,6 +113,10 @@ jobs:
           key: coverage-metacoin-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/repo/packages/metacoin/coverage/lcov.info
+      - save_cache:
+          key: coverage-contracts-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/repo/packages/contracts/coverage/lcov.info
   static-tests:
     working_directory: ~/repo
     docker:
@@ -181,3 +189,4 @@ workflows:
       - submit-coverage:
           requires:
             - test-rest
+            - test-contracts-geth
