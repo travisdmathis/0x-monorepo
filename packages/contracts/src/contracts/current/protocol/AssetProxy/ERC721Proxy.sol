@@ -28,6 +28,7 @@ contract ERC721Proxy is
     MixinAssetProxy,
     MixinAuthorizable
 {
+    using LibBytes for bytes;
 
     // Id of this proxy.
     uint8 constant PROXY_ID = 2;
@@ -94,10 +95,10 @@ contract ERC721Proxy is
         )
     {
         // Decode asset data.
-        token = LibBytes.readAddress(assetData, 0);
-        tokenId = LibBytes.readUint256(assetData, 20);
+        token = assetData.readAddress(0);
+        tokenId = assetData.readUint256(20);
         if (assetData.length > 53) {
-            receiverData = LibBytes.readBytes(assetData, 52);
+            receiverData = assetData.readBytes(52);
         }
 
         return (

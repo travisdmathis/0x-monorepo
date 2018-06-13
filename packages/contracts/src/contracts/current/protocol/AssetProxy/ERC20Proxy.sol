@@ -28,6 +28,7 @@ contract ERC20Proxy is
     MixinAssetProxy,
     MixinAuthorizable
 {
+    using LibBytes for bytes;
 
     // Id of this proxy.
     uint8 constant PROXY_ID = 1;
@@ -46,7 +47,7 @@ contract ERC20Proxy is
         internal
     {
         // Decode asset data.
-        address token = LibBytes.readAddress(assetData, 0);
+        address token = assetData.readAddress(0);
 
         // Transfer tokens.
         bool success = IERC20Token(token).transferFrom(from, to, amount);
