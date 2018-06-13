@@ -32,7 +32,6 @@
         "TestAssetDataDecoders",
         "TestAssetProxyDispatcher",
         "TestLibBytes",
-        "TestLibMem",
         "TestLibs",
         "TestSignatureValidator",
         "TokenRegistry",
