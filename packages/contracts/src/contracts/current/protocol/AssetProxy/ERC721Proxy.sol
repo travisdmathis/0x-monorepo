@@ -25,7 +25,6 @@ import "./MixinAuthorizable.sol";
 import "../../tokens/ERC721Token/ERC721Token.sol";
 
 contract ERC721Proxy is
-    LibBytes,
     MixinAssetProxy,
     MixinAuthorizable
 {
@@ -95,10 +94,10 @@ contract ERC721Proxy is
         )
     {
         // Decode asset data.
-        token = readAddress(assetData, 0);
-        tokenId = readUint256(assetData, 20);
-        if (assetData.length > 52) {
-            receiverData = readBytes(assetData, 52);
+        token = LibBytes.readAddress(assetData, 0);
+        tokenId = LibBytes.readUint256(assetData, 20);
+        if (assetData.length > 53) {
+            receiverData = LibBytes.readBytes(assetData, 52);
         }
 
         return (

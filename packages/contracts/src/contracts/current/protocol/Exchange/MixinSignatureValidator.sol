@@ -26,7 +26,6 @@ import "./interfaces/IWallet.sol";
 import "./interfaces/IValidator.sol";
 
 contract MixinSignatureValidator is
-    LibBytes,
     LibExchangeErrors,
     MSignatureValidator,
     MTransactions
@@ -93,7 +92,7 @@ contract MixinSignatureValidator is
         );
 
         // Pop last byte off of signature byte array.
-        SignatureType signatureType = SignatureType(uint8(popLastByte(signature)));
+        SignatureType signatureType = SignatureType(uint8(LibBytes.popLastByte(signature)));
 
         // Variables are not scoped in Solidity.
         uint8 v;
@@ -128,8 +127,8 @@ contract MixinSignatureValidator is
                 LENGTH_65_REQUIRED
             );
             v = uint8(signature[0]);
-            r = readBytes32(signature, 1);
-            s = readBytes32(signature, 33);
+            r = LibBytes.readBytes32(signature, 1);
+            s = LibBytes.readBytes32(signature, 33);
             recovered = ecrecover(hash, v, r, s);
             isValid = signer == recovered;
             return isValid;
@@ -141,8 +140,8 @@ contract MixinSignatureValidator is
                 LENGTH_65_REQUIRED
             );
             v = uint8(signature[0]);
-            r = readBytes32(signature, 1);
-            s = readBytes32(signature, 33);
+            r = LibBytes.readBytes32(signature, 1);
+            s = LibBytes.readBytes32(signature, 33);
             recovered = ecrecover(
                 keccak256(abi.encodePacked(ETH_PERSONAL_MESSAGE, hash)),
                 v,
@@ -183,7 +182,8 @@ contract MixinSignatureValidator is
         // | 0x14 + x | 1      | Signature type is always "\x06" |
         } else if (signatureType == SignatureType.Validator) {
             // Pop last 20 bytes off of signature byte array.
-            address validator = popLast20Bytes(signature);
+            address validator = LibBytes.popLast20Bytes(signature);
+            
             // Ensure signer has approved validator.
             if (!allowedValidators[signer][validator]) {
                 return false;
@@ -214,8 +214,8 @@ contract MixinSignatureValidator is
                 LENGTH_65_REQUIRED
             );
             v = uint8(signature[0]);
-            r = readBytes32(signature, 1);
-            s = readBytes32(signature, 33);
+            r = LibBytes.readBytes32(signature, 1);
+            s = LibBytes.readBytes32(signature, 33);
             recovered = ecrecover(
                 keccak256(abi.encodePacked(TREZOR_PERSONAL_MESSAGE, hash)),
                 v,

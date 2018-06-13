@@ -25,7 +25,6 @@ import "./MixinAuthorizable.sol";
 import "../../tokens/ERC20Token/IERC20Token.sol";
 
 contract ERC20Proxy is
-    LibBytes,
     MixinAssetProxy,
     MixinAuthorizable
 {
@@ -47,7 +46,7 @@ contract ERC20Proxy is
         internal
     {
         // Decode asset data.
-        address token = readAddress(assetData, 0);
+        address token = LibBytes.readAddress(assetData, 0);
 
         // Transfer tokens.
         bool success = IERC20Token(token).transferFrom(from, to, amount);
