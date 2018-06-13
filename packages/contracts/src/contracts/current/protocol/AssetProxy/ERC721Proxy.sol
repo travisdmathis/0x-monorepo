@@ -98,7 +98,7 @@ contract ERC721Proxy is
         token = assetData.readAddress(0);
         tokenId = assetData.readUint256(20);
         if (assetData.length > 53) {
-            receiverData = assetData.readBytes(52);
+            receiverData = assetData.readBytesWithLength(52);
         }
 
         return (
