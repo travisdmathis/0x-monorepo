@@ -59,13 +59,7 @@ contract ERC721Proxy is
             bytes memory receiverData
         ) = decodeERC721AssetData(assetData);
 
-        // Transfer token. Saves gas by calling safeTransferFrom only
-        // when there is receiverData present. Either succeeds or throws.
-        if (receiverData.length > 0) {
-            ERC721Token(token).safeTransferFrom(from, to, tokenId, receiverData);
-        } else {
-            ERC721Token(token).transferFrom(from, to, tokenId);
-        }
+        ERC721Token(token).safeTransferFrom(from, to, tokenId, receiverData);
     }
 
     /// @dev Gets the proxy id associated with the proxy address.
