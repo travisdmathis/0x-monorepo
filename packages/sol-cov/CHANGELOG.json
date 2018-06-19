@@ -49,6 +49,14 @@
             {
                 "note": "HUGE perf improvements",
                 "pr": 690
+            },
+            {
+                "note": "Create `RevertTraceSubprovider` which prints a stack trace when a REVERT is detected",
+                "pr": 705
+            },
+            {
+                "note": "Add source code snippets to stack traces printed by `RevertTraceSubprovider`",
+                "pr": 725
             }
         ]
     },
